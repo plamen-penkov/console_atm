@@ -1,18 +1,16 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class Main {
-    static double balance = 0;
+    static BigDecimal balance = new BigDecimal(0);
+    static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Welcome to the console ATM!");
-        loadBalance();
+        balance = DataHandler.loadBalance();
 
         printOptions();
 
-        Scanner scanner = new Scanner(System.in);
         int input;
 
         loop:
@@ -48,12 +46,11 @@ public class Main {
     }
     static void depositAmount() throws InterruptedException {
         System.out.print("Enter amount to deposit: ");
-        Scanner scanner = new Scanner(System.in);
-        double amount;
+        BigDecimal amount;
         try {
-            amount = Double.parseDouble(scanner.nextLine());
-            balance = balance + amount;
-            saveBalance();
+            amount = new BigDecimal(Double.parseDouble(scanner.nextLine()));
+            balance = balance.add(amount);
+            DataHandler.saveBalance(balance);
             System.out.println("Deposit successful!");
             Thread.sleep(2000);
         } catch (Exception exception) {
@@ -63,38 +60,21 @@ public class Main {
     }
     static void withdrawAmount() throws InterruptedException {
         System.out.print("Enter amount to withdraw: ");
-        Scanner scanner = new Scanner(System.in);
-        double amount;
+        BigDecimal amount;
         try {
-            amount = Double.parseDouble(scanner.nextLine());
-            if (balance - amount < 0) {
+            amount = new BigDecimal(Double.parseDouble(scanner.nextLine()));
+            if (balance.doubleValue() - amount.doubleValue() < 0) {
                 System.out.println("Not enough funds.");
                 Thread.sleep(2000);
             } else {
-                balance = balance - amount;
-                saveBalance();
+                balance = balance.subtract(amount);
+                DataHandler.saveBalance(balance);
                 System.out.println("Withdrawal successful!");
                 Thread.sleep(2000);
             }
         } catch (Exception exception) {
             System.out.println("Error processing input.");
             Thread.sleep(2000);
-        }
-    }
-    static void loadBalance() {
-        File balanceFile = new File("src/balance.txt");
-        try (Scanner scanner = new Scanner(balanceFile)) {
-            String content = scanner.nextLine();
-            balance = Double.parseDouble(content);
-        } catch (IOException e) {
-            System.out.println("Could not find balance file.");
-        }
-    }
-    static void saveBalance() {
-        try (FileWriter balanceFile = new FileWriter("src/balance.txt")) {
-            balanceFile.write(String.valueOf(balance));
-        } catch (Exception exception) {
-            System.out.println("An error occurred during depositing");
         }
     }
 }
